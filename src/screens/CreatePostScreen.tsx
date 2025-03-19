@@ -80,7 +80,7 @@ export const CreatePostScreen: React.FC = () => {
         </View>
       </View>
       {!file ? (
-        <TouchableHighlight onPress={pickFile} className="flex-1">
+        <TouchableHighlight disabled={addPostMutation.isPending} onPress={pickFile} className="flex-1">
           <View className="flex-1 items-center justify-center gap-2">
             <Ionicons name="image-outline" color={COLORS.textGray} size={80} />
             <Text className="text-textGray">Tap to select an image</Text>

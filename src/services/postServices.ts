@@ -14,5 +14,36 @@ export const postServices = {
     isAuthIncluded: false,
     method: "GET",
     url: `/post/feed?limit=${limit}`,
+  }),
+  bookMarkPost: (postId: string) => sendRequest({
+    isAuthIncluded: true,
+    url: `/post/bookmark/save/${postId}`,
+    method: "PUT"
+  }),
+  removeBookMarkPost: (postId: string) => sendRequest({
+    isAuthIncluded: true,
+    url: `/post/bookmark/unsave/${postId}`,
+    method: "PUT"
+  }),
+  getSavedPosts: () => sendRequest({
+    isAuthIncluded: true,
+    url: `/post/bookmark`,
+    method: "GET",
+  }),
+  likePost: (postId: string) => sendRequest({
+    isAuthIncluded: true,
+    url: `/post/like/${postId}`,
+    method: "PUT",
+  }),
+  disLikePost: (postId: string) => sendRequest({
+    isAuthIncluded: true,
+    url: `/post/dislike/${postId}`,
+    method: "PUT",
+  }),
+  uploadComment: (postId: string, data: unknown) => sendRequest({
+    isAuthIncluded: true,
+    url: `/post/comment/${postId}`,
+    method: "PUT",
+    data
   })
 }
