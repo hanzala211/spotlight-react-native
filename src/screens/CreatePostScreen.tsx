@@ -119,7 +119,7 @@ export const CreatePostScreen: React.FC = () => {
                   value={value}
                   max={30}
                   placeholder="Write a caption..."
-                  className="rounded-full w-[83%]"
+                  className="rounded-full w-[82%]"
                 />
               )}
             />

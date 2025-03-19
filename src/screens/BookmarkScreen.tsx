@@ -17,18 +17,19 @@ export const BookmarkScreen: React.FC = () => {
     queryKey: ['savedPosts'],
   });
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   return (
     <View className="flex-1 bg-bgPrimary p-1 w-full">
       <View className="pb-5 border-b-[1px] border-bgGray">
         <Heading heading="Bookmarks" />
       </View>
       <ScrollView>
-        <View className="flex-1 flex-row flex-wrap gap-2 mt-4 justify-between">
+        <View className="flex-1 flex-row flex-wrap gap-x-2 mt-4 ">
           {isLoading
-            ? Array(3)
+            ? Array(12)
               .fill(null)
               .map((_, index) => (
-                <View key={index} className='w-[32%] mb-[16px]'>
+                <View key={index} className='w-[32%] mb-[8px]'>
                   <SkeletonPlaceholder>
                     <SkeletonPlaceholder.Item
                       width="100%"

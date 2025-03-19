@@ -25,6 +25,8 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
   const { control, handleSubmit, watch, reset } = useForm<CommentFormSchema>({
     resolver: zodResolver(commentFormSchema),
   });
+
+
   const bookmarkSaveMutate = useMutation({
     mutationFn: (postId: string) => bookmarkPost(postId),
     onSuccess: () => {
@@ -38,6 +40,7 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
       });
     },
   });
+
   const removeBookmarkSaveMutate = useMutation({
     mutationFn: (postId: string) => removeBookmarkPost(postId),
     onSuccess: () => {
@@ -46,19 +49,19 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
         if (!prev) return prev;
         return {
           ...prev,
-          bookmarkedPosts: [
-            ...prev.bookmarkedPosts.filter(item => item !== post._id),
-          ],
+          bookmarkedPosts: prev.bookmarkedPosts.filter(item => item !== post._id),
         };
       });
     },
   });
+
   const likePostMutation = useMutation({
     mutationFn: (postId: string) => likePost(postId),
     onSuccess: (data, postId: string) => {
-      queryClient.setQueryData(['savedPosts'], (oldData: any) =>
-        oldData?.map((post: any) => {
+      queryClient.setQueryData(['savedPosts'], (oldData: any = []) => {
+        const updatedPosts = oldData.map((post: any) => {
           if (post._id === postId) {
+            console.log(post.likes.includes(userData?._id || ''))
             return {
               ...post,
               likesCount: post.likesCount + 1,
@@ -66,9 +69,10 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
             };
           }
           return post;
-        }),
-      );
-
+        });
+        console.log('Updated savedPosts:', updatedPosts);
+        return updatedPosts;
+      });
       queryClient.setQueryData(['feedPosts'], (oldData: any) =>
         oldData?.map((post: any) => {
           if (post._id === postId) {
@@ -79,9 +83,8 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
             };
           }
           return post;
-        }),
+        })
       );
-
     },
   });
 
@@ -98,9 +101,8 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
             };
           }
           return post;
-        }),
+        })
       );
-
       queryClient.setQueryData(['savedPosts'], (oldData: any) =>
         oldData?.map((post: any) => {
           if (post._id === postId) {
@@ -111,7 +113,7 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
             };
           }
           return post;
-        }),
+        })
       );
     },
   });
@@ -120,7 +122,7 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
     mutationFn: (params: { postId: string; data: unknown }) =>
       uploadComment(params.postId, params.data),
     onSuccess: (data, params) => {
-      reset()
+      reset();
       queryClient.setQueryData(['feedPosts'], (oldData: any) =>
         oldData?.map((post: any) => {
           if (post._id === params.postId) {
@@ -130,23 +132,28 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
             };
           }
           return post;
-        }),
+        })
       );
-
-      queryClient.setQueryData(['savedPosts'], (oldData: any) => ({
-        ...oldData,
-        posts: oldData?.posts.map((post: any) =>
-          post._id === params.postId
-            ? { ...post, comments: post.comments ? [...post.comments, params.data] : [params.data] }
-            : post
-        ),
-      }));
+      queryClient.setQueryData(['savedPosts'], (oldData: any) =>
+        oldData?.map((post: any) => {
+          if (post._id === params.postId) {
+            return {
+              ...post,
+              comments: post.comments ? [...post.comments, params.data] : [params.data],
+            };
+          }
+          return post;
+        })
+      );
     },
   });
 
   const onSubmit = (data: CommentFormSchema) => {
     console.log(data);
-    uploadCommentMutation.mutate({ postId: post._id, data: { ...data, commentBy: userData, createdAt: Date.now() } });
+    uploadCommentMutation.mutate({
+      postId: post._id,
+      data: { ...data, commentBy: userData, createdAt: Date.now() },
+    });
   };
 
   const handleSave = () => {
@@ -239,7 +246,8 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
           snapPoints={['20%', '93%']}
           enablePanDownToClose={true}
           handleStyle={{ backgroundColor: COLORS.bgPrimary }}
-          handleIndicatorStyle={{ backgroundColor: COLORS.textGray }}>
+          handleIndicatorStyle={{ backgroundColor: COLORS.textGray }}
+        >
           <BottomSheetView className="flex-1 bg-bgPrimary py-3 pb-14 px-1 gap-2">
             <Text className="text-textWhite font-semibold text-[18px] border-b-[1px] border-temporaryGray w-full text-center pb-3">
               Comments
@@ -259,8 +267,7 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
                 <ScrollView>
                   {post.comments.map((item, index) => (
                     <Comments key={index} comment={item} />
-                  ))
-                  }
+                  ))}
                 </ScrollView>
               )}
             </View>
@@ -283,7 +290,8 @@ export const Post: React.FC<{ post: IPost }> = ({ post }) => {
                 className={`${watch('comment') && watch('comment').length === 0
                   ? 'opacity-50 cursor-not-allowed'
                   : ''
-                  }`}>
+                  }`}
+              >
                 <Text className="text-textPrimary">Post</Text>
               </TouchableOpacity>
             </View>
